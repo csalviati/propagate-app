@@ -55,3 +55,6 @@ htmlcov/
 
 # Supabase
 supabase/.temp
+
+# Propogate local uploads
+api/uploads/

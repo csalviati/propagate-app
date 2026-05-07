@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+/* ─── Design tokens ─────────────────────────────────────────────────────────── */
+:root {
+  /* Illustration-inspired palette (NYT gardening animation) */
+  --sky:          #c4dff0;  /* hero sky top */
+  --sky-mid:      #d8eedc;  /* sky fade to green */
+  --ground:       #c8d878;  /* ground strip */
+  --cream:        #f5f0e8;  /* warm page background */
+  --cream-dark:   #ece4d4;
+
+  /* Greens */
+  --dk-green:     #1e4a2a;
+  --md-green:     #2d6e3f;
+  --lt-green:     #5aaa6a;
+  --sage:         #78a86c;
+  --moss:         #506840;
+
+  /* Accent colors from the illustration */
+  --burgundy:     #7a2538;
+  --wine:         #5a1828;
+  --wisteria:     #a88cc8;
+  --lt-wisteria:  #c4b0e0;
+  --rose:         #d47888;
+  --lt-rose:      #f0a8b0;
+  --yellow:       #d4b430;
+  --slate:        #487888;
+  --dk-slate:     #2c5060;
+  --periwinkle:   #7888c8;
+  --lt-periwinkle:#a8b4e0;
+  --bark:         #7a5032;
+
+  /* Neutrals */
+  --ink:          #1a1a18;
+  --soil:         #44403c;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
+  background-color: var(--cream);
+  color: var(--soil);
+}
+
+/* ─── Keyframe animations ────────────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-12px) rotate(3deg); }
+  66%       { transform: translateY(-6px) rotate(-2deg); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50%       { transform: rotate(4deg); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes sprout {
+  0%   { transform: scaleY(0) translateY(10px); opacity: 0; }
+  60%  { transform: scaleY(1.08) translateY(-2px); opacity: 1; }
+  100% { transform: scaleY(1) translateY(0); opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─── Animation utilities ────────────────────────────────────────────────────── */
+.animate-float   { animation: float 6s ease-in-out infinite; }
+.animate-sway    { animation: sway 4s ease-in-out infinite; }
+.animate-fade-up { animation: fadeUp 0.6s ease both; }
+.animate-fade-in { animation: fadeIn 0.5s ease both; }
+.animate-sprout  { animation: sprout 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* ─── Skeleton loading ───────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--cream-dark) 25%,
+    #ddd5c4 50%,
+    var(--cream-dark) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+/* ─── Form elements ──────────────────────────────────────────────────────────── */
+.input {
+  @apply w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm shadow-sm
+         focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-200
+         transition placeholder:text-stone-400;
+}
+
+.label {
+  @apply text-sm font-medium text-stone-600;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────────── */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-1.5
+         rounded-xl px-5 py-2.5 text-sm font-semibold text-white
+         shadow-sm active:scale-95
+         disabled:opacity-50 disabled:cursor-not-allowed
+         transition-all duration-150;
+  background-color: var(--md-green);
+}
+.btn-primary:hover { background-color: var(--lt-green); }
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-1.5
+         rounded-xl border border-stone-200 bg-white px-5 py-2.5 text-sm font-semibold text-stone-700
+         shadow-sm hover:bg-stone-50 active:scale-95
+         disabled:opacity-50
+         transition-all duration-150;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-1.5
+         rounded-xl px-4 py-2 text-sm font-medium
+         hover:bg-green-50 active:scale-95
+         transition-all duration-150;
+  color: var(--md-green);
+}
+
+/* ─── Cards ──────────────────────────────────────────────────────────────────── */
+.card {
+  @apply rounded-2xl bg-white border border-stone-200/80 shadow-sm p-4;
+}
+
+.card-hover {
+  @apply rounded-2xl bg-white border border-stone-200/80 shadow-sm p-4
+         transition-all duration-200
+         hover:shadow-md hover:-translate-y-0.5 hover:border-green-200;
+}
+
+/* ─── Page wrapper utilities ─────────────────────────────────────────────────── */
+.page-wrap        { @apply max-w-5xl mx-auto px-4 py-10; }
+.page-wrap-narrow { @apply max-w-2xl mx-auto px-4 py-10; }

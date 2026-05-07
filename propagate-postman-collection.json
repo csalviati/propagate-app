@@ -1,0 +1,509 @@
+{
+  "info": {
+    "name": "Propogate API",
+    "description": "Full API collection for the Propogate plant barter & donation marketplace.\n\n**Getting started:**\n1. Run `POST /auth/register` or `POST /auth/login` — the token is saved automatically to the `token` collection variable.\n2. All subsequent requests use that token via `{{token}}`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string",
+      "description": "API base URL"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "JWT access token — populated automatically after login or register"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Register, log in, and get the current user. The token is saved automatically after register/login.",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "    pm.collectionVariables.set('token', json.access_token);",
+                  "    console.log('Token saved to collection variable.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"you@example.com\",\n  \"password\": \"password123\",\n  \"display_name\": \"Your Name\",\n  \"city\": \"San Francisco\",\n  \"lat\": 37.7749,\n  \"lng\": -122.4194\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"]},
+            "description": "Create a new account. The returned `access_token` is saved automatically to `{{token}}`."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "    pm.collectionVariables.set('token', json.access_token);",
+                  "    console.log('Token saved to collection variable.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"password\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"]},
+            "description": "Log in with email and password. The returned `access_token` is saved automatically to `{{token}}`.\n\nSeed credentials: `alice@example.com` / `password`"
+          }
+        },
+        {
+          "name": "Get Current User (me)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"]},
+            "description": "Returns the profile of the currently authenticated user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"]},
+            "description": "Liveness check — no auth required."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plant Library",
+      "description": "CRUD for plant instances. Each plant can optionally be linked to a curated species.",
+      "item": [
+        {
+          "name": "List My Plants",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/plants", "host": ["{{baseUrl}}"], "path": ["plants"]},
+            "description": "Returns all plants in the authenticated user's library."
+          }
+        },
+        {
+          "name": "Add a Plant",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"common_name\": \"Monstera\",\n  \"variety\": \"Thai Constellation\",\n  \"nickname\": \"Big Leaf\",\n  \"notes\": \"Got this from a friend in 2023.\",\n  \"species_id\": null\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/plants", "host": ["{{baseUrl}}"], "path": ["plants"]},
+            "description": "Add a new plant to your library. `species_id` is optional — use the Species Search endpoint to find one."
+          }
+        },
+        {
+          "name": "Get a Plant",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/plants/1", "host": ["{{baseUrl}}"], "path": ["plants", "1"]},
+            "description": "Get a single plant by ID. Publicly accessible."
+          }
+        },
+        {
+          "name": "Update a Plant",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"Updated Nickname\",\n  \"notes\": \"Updated care notes.\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/plants/1", "host": ["{{baseUrl}}"], "path": ["plants", "1"]},
+            "description": "Partially update a plant you own. Only supply fields you want to change."
+          }
+        },
+        {
+          "name": "Delete a Plant",
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/plants/1", "host": ["{{baseUrl}}"], "path": ["plants", "1"]},
+            "description": "Delete a plant you own. Returns 204 No Content on success."
+          }
+        },
+        {
+          "name": "Upload Plant Photo",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "file", "type": "file", "description": "Image file (jpg, png, etc.)"}
+              ]
+            },
+            "url": {"raw": "{{baseUrl}}/plants/1/photo", "host": ["{{baseUrl}}"], "path": ["plants", "1", "photo"]},
+            "description": "Upload or replace the photo for a plant you own."
+          }
+        },
+        {
+          "name": "Get Propagation Lineage",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/plants/1/lineage", "host": ["{{baseUrl}}"], "path": ["plants", "1", "lineage"]},
+            "description": "Returns the full propagation tree rooted at the origin ancestor. Each node has `children` — the plants produced by exchanges from this plant."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Species",
+      "description": "Typeahead search over the curated plant species catalogue.",
+      "item": [
+        {
+          "name": "Search Species",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/plants/species?q=monstera",
+              "host": ["{{baseUrl}}"],
+              "path": ["plants", "species"],
+              "query": [{"key": "q", "value": "monstera", "description": "Search term — matches scientific or common name"}]
+            },
+            "description": "Returns up to 20 species matching the query. Use `species_id` from a result to link a plant instance to a curated species."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Marketplace Listings",
+      "description": "Create and browse free cuttings/seeds listings.",
+      "item": [
+        {
+          "name": "Browse Listings",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/listings",
+              "host": ["{{baseUrl}}"],
+              "path": ["listings"],
+              "query": [
+                {"key": "q", "value": "", "description": "Search title/description", "disabled": true},
+                {"key": "type", "value": "cutting", "description": "cutting or seed", "disabled": true},
+                {"key": "near", "value": "37.77,-122.41,25", "description": "lat,lng,radius_km proximity filter", "disabled": true}
+              ]
+            },
+            "description": "Returns all available listings. Toggle the query params to filter by keyword, type, or proximity."
+          }
+        },
+        {
+          "name": "Create a Listing",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plant_instance_id\": 1,\n  \"type\": \"cutting\",\n  \"title\": \"Rooted Monstera cutting — healthy!\",\n  \"description\": \"Happy to share a cutting from my big leaf Monstera.\",\n  \"lat\": 37.7749,\n  \"lng\": -122.4194\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/listings", "host": ["{{baseUrl}}"], "path": ["listings"]},
+            "description": "`plant_instance_id` must reference a plant you own. `type` is `cutting` or `seed`."
+          }
+        },
+        {
+          "name": "Get a Listing",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/listings/1", "host": ["{{baseUrl}}"], "path": ["listings", "1"]}
+          }
+        },
+        {
+          "name": "Update a Listing",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated title\",\n  \"description\": \"Updated description.\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/listings/1", "host": ["{{baseUrl}}"], "path": ["listings", "1"]}
+          }
+        },
+        {
+          "name": "Delete a Listing",
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/listings/1", "host": ["{{baseUrl}}"], "path": ["listings", "1"]}
+          }
+        },
+        {
+          "name": "Upload Listing Photo",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "file", "type": "file", "description": "Image file"}
+              ]
+            },
+            "url": {"raw": "{{baseUrl}}/listings/1/photo", "host": ["{{baseUrl}}"], "path": ["listings", "1", "photo"]}
+          }
+        },
+        {
+          "name": "Request a Listing",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"I'd love this cutting! I'm in SF and can pick up anytime.\",\n  \"offered_listing_id\": null\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/listings/1/requests", "host": ["{{baseUrl}}"], "path": ["listings", "1", "requests"]},
+            "description": "Submit a claim request. Set `offered_listing_id` to propose a barter. The listing owner will see this in their inbox."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Requests (Exchange Lifecycle)",
+      "description": "Manage the request lifecycle: pending → accepted → completed. Completing creates a lineage edge.",
+      "item": [
+        {
+          "name": "List My Requests",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/requests", "host": ["{{baseUrl}}"], "path": ["requests"]},
+            "description": "Returns all requests where you are the requester OR the listing owner."
+          }
+        },
+        {
+          "name": "Get a Request",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/requests/1", "host": ["{{baseUrl}}"], "path": ["requests", "1"]}
+          }
+        },
+        {
+          "name": "Accept a Request",
+          "request": {
+            "method": "POST",
+            "url": {"raw": "{{baseUrl}}/requests/1/accept", "host": ["{{baseUrl}}"], "path": ["requests", "1", "accept"]},
+            "description": "Listing owner accepts the request. Sets status to `accepted` and listing to `reserved`."
+          }
+        },
+        {
+          "name": "Decline a Request",
+          "request": {
+            "method": "POST",
+            "url": {"raw": "{{baseUrl}}/requests/1/decline", "host": ["{{baseUrl}}"], "path": ["requests", "1", "decline"]},
+            "description": "Listing owner declines the request. Sets status to `declined`."
+          }
+        },
+        {
+          "name": "Cancel a Request",
+          "request": {
+            "method": "POST",
+            "url": {"raw": "{{baseUrl}}/requests/1/cancel", "host": ["{{baseUrl}}"], "path": ["requests", "1", "cancel"]},
+            "description": "Either party can cancel a pending or accepted request."
+          }
+        },
+        {
+          "name": "Complete an Exchange ⭐",
+          "request": {
+            "method": "POST",
+            "url": {"raw": "{{baseUrl}}/requests/1/complete", "host": ["{{baseUrl}}"], "path": ["requests", "1", "complete"]},
+            "description": "Listing owner marks the exchange complete. This:\n1. Creates a new `plant_instance` for the recipient with `parent_id` pointing at the donor's plant (the lineage edge)\n2. Writes an `exchanges` record\n3. Sets the listing to `completed` and the request to `completed`"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "description": "Per-request message threads. Poll GET every few seconds to receive new messages.",
+      "item": [
+        {
+          "name": "Get Messages",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/requests/1/messages", "host": ["{{baseUrl}}"], "path": ["requests", "1", "messages"]},
+            "description": "Returns all messages in the thread for a request, ordered oldest-first."
+          }
+        },
+        {
+          "name": "Send a Message",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"Hi! I can pick up on Saturday morning — does that work?\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/requests/1/messages", "host": ["{{baseUrl}}"], "path": ["requests", "1", "messages"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plant Notes",
+      "description": "Care tips and observations per plant. Can be private (owner only) or public.",
+      "item": [
+        {
+          "name": "List Notes for a Plant",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/plants/1/notes", "host": ["{{baseUrl}}"], "path": ["plants", "1", "notes"]},
+            "description": "Non-owners see only public notes. Owners see all notes."
+          }
+        },
+        {
+          "name": "Add a Note",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"Prefers bright indirect light. Water every 7–10 days in summer.\",\n  \"visibility\": \"public\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/plants/1/notes", "host": ["{{baseUrl}}"], "path": ["plants", "1", "notes"]},
+            "description": "`visibility` is `public` or `private`. Private notes can only be added by the plant owner."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Social Feed",
+      "description": "Posts and the personalized follow feed.",
+      "item": [
+        {
+          "name": "Get My Feed",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/posts/feed?page=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "feed"],
+              "query": [{"key": "page", "value": "1", "description": "Page number (20 posts per page)"}]
+            },
+            "description": "Returns paginated posts from the authenticated user and everyone they follow, newest first."
+          }
+        },
+        {
+          "name": "Create a Post",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"My Monstera just put out a new fenestrated leaf! 🌿\",\n  \"plant_instance_id\": 1\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"]},
+            "description": "`plant_instance_id` is optional — tag a plant to link the post to your library."
+          }
+        },
+        {
+          "name": "Get Posts by User",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/posts/user/1?page=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", "user", "1"],
+              "query": [{"key": "page", "value": "1"}]
+            },
+            "description": "Public: returns all posts by a specific user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Follows",
+      "description": "Follow and unfollow other gardeners. Drives the social feed.",
+      "item": [
+        {
+          "name": "Follow a User",
+          "request": {
+            "method": "POST",
+            "url": {"raw": "{{baseUrl}}/follows/2", "host": ["{{baseUrl}}"], "path": ["follows", "2"]},
+            "description": "Follow user with ID 2. Idempotent — safe to call multiple times."
+          }
+        },
+        {
+          "name": "Unfollow a User",
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/follows/2", "host": ["{{baseUrl}}"], "path": ["follows", "2"]}
+          }
+        },
+        {
+          "name": "Get Followers",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/follows/users/1/followers", "host": ["{{baseUrl}}"], "path": ["follows", "users", "1", "followers"]},
+            "description": "Returns all users who follow user 1."
+          }
+        },
+        {
+          "name": "Get Following",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/follows/users/1/following", "host": ["{{baseUrl}}"], "path": ["follows", "users", "1", "following"]},
+            "description": "Returns all users that user 1 follows."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/users/1", "host": ["{{baseUrl}}"], "path": ["users", "1"]},
+            "description": "Public — returns a user's display name, city, and bio."
+          }
+        }
+      ]
+    }
+  ]
+}
